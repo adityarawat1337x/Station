@@ -1,6 +1,7 @@
 const OtpService = require("../services/opt-service")
 const tokenService = require("../services/token-service")
 const UserService = require("../services/user-service")
+const UserDtos = require("../dtos/user-dtos")
 
 class AuthController {
   async sendotp(req, res) {
@@ -21,10 +22,11 @@ class AuthController {
 
     //? Send Otp
     try {
-      await OtpService.sendOtpSms(phone, otp)
+      //await OtpService.sendOtpSms(phone, otp)
       return res.json({
         hash: `${hash}.${expires}`,
         phone,
+        otp,
       })
     } catch (err) {
       return res.status(500).send({
@@ -63,27 +65,27 @@ class AuthController {
     try {
       user = await UserService.findUser({ phone })
       if (!user) await UserService.createUser({ phone })
+      //!token
+
+      const { accessToken, refreshToken } = tokenService.generateToken({
+        id: user._id,
+        activated: false,
+      })
+
+      res.cookie("refreshToken", refreshToken, {
+        maxAge: 1000 * 60 * 60 * 24 * 30,
+        httpOnly: true,
+      })
+
+      res.status(200).json({
+        accessToken,
+        user: new UserDtos(user),
+      })
     } catch (err) {
       return res.status(500).send({
         message: "User creation failed",
       })
     }
-
-    //!token
-
-    const { accessToken, refreshToken } = tokenService.generateToken({
-      id: user._id,
-      activated: false,
-    })
-
-    res.cookie("refreshToken", refreshToken, {
-      maxAge: 1000 * 60 * 60 * 24 * 30,
-      httpOnly: true,
-    })
-
-    res.status(200).json({
-      accessToken,
-    })
   }
 }
 

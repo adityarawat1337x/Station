@@ -11,11 +11,8 @@ import { ChakraProvider } from "@chakra-ui/react"
 import Authenticate from "./Pages/Athenticate"
 import Activate from "./Pages/Activate"
 import Rooms from "./Pages/Rooms"
+import { useSelector } from "react-redux"
 
-const isAuth = false
-const user = {
-  activated: false,
-}
 function App() {
   return (
     <ChakraProvider>
@@ -46,47 +43,58 @@ function App() {
   )
 }
 
-const GuestRoute = ({ children, ...rest }) => (
-  <Route
-    {...rest}
-    render={({ location }) =>
-      isAuth ? (
-        <Redirect to={{ pathname: "/rooms", state: { from: location } }} />
-      ) : (
-        children
-      )
-    }
-  ></Route>
-)
+const GuestRoute = ({ children, ...rest }) => {
+  const { user, isAuth } = useSelector((state) => state.auth)
 
-const SemiProtectedRoute = ({ children, ...rest }) => (
-  <Route
-    {...rest}
-    render={({ location }) =>
-      !isAuth ? (
-        <Redirect to={{ pathname: "/", state: { from: location } }} />
-      ) : isAuth && !user.activated ? (
-        children
-      ) : (
-        <Redirect to={{ pathname: "/rooms", state: { from: location } }} />
-      )
-    }
-  ></Route>
-)
+  return (
+    <Route
+      {...rest}
+      render={({ location }) =>
+        isAuth ? (
+          <Redirect to={{ pathname: "/rooms", state: { from: location } }} />
+        ) : (
+          children
+        )
+      }
+    ></Route>
+  )
+}
+const SemiProtectedRoute = ({ children, ...rest }) => {
+  const { user, isAuth } = useSelector((state) => state.auth)
 
-const ProtectedRoute = ({ children, ...rest }) => (
-  <Route
-    {...rest}
-    render={({ location }) =>
-      !isAuth ? (
-        <Redirect to={{ pathname: "/", state: { from: location } }} />
-      ) : isAuth && !user.activated ? (
-        <Redirect to={{ pathname: "/activate", state: { from: location } }} />
-      ) : (
-        children
-      )
-    }
-  ></Route>
-)
+  return (
+    <Route
+      {...rest}
+      render={({ location }) =>
+        !isAuth ? (
+          <Redirect to={{ pathname: "/", state: { from: location } }} />
+        ) : isAuth && !user.activated ? (
+          children
+        ) : (
+          <Redirect to={{ pathname: "/rooms", state: { from: location } }} />
+        )
+      }
+    ></Route>
+  )
+}
+
+const ProtectedRoute = ({ children, ...rest }) => {
+  const { user, isAuth } = useSelector((state) => state.auth)
+
+  return (
+    <Route
+      {...rest}
+      render={({ location }) =>
+        !isAuth ? (
+          <Redirect to={{ pathname: "/", state: { from: location } }} />
+        ) : isAuth && !user.activated ? (
+          <Redirect to={{ pathname: "/activate", state: { from: location } }} />
+        ) : (
+          children
+        )
+      }
+    ></Route>
+  )
+}
 
 export default App

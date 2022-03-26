@@ -1,24 +1,34 @@
-import React from "react"
+import { useState } from "react"
 import LoginCard from "../../Shared/LoginCard"
 import { Input, VStack, Text, Spacer } from "@chakra-ui/react"
-import sentOtp from "../../../http"
+import { sentOtp } from "../../../http"
+import { useDispatch } from "react-redux"
+import { setOtp } from "../../../store/authSlice"
 
 const Phone = (props) => {
   const { next } = props
+  const [phone, setPhone] = useState("")
+  const dispatch = useDispatch()
 
-  const submit = (e) => {
-    e.preventDefault()
-    sentOtp(e.target.phone.value)
+  async function submit() {
+    const res = await sentOtp({ phone: phone })
+    console.log(res)
+    dispatch(setOtp(res.data))
     next((prev) => prev + 1)
   }
 
+  console.log(phone)
   return (
     <LoginCard
       title="📞 Enter Phone"
       data={
         <VStack>
           <Spacer />
-          <Input variant="filled" width="-moz-fit-content" />
+          <Input
+            onChange={(e) => setPhone(e.target.value)}
+            variant="filled"
+            width="-moz-fit-content"
+          />
           <Spacer />
           <Text fontSize="sm" colorScheme="gray">
             We will send you an otp to verify your phone.

@@ -11,7 +11,7 @@ const LoginCard = (props) => {
       <Spacer />
       <Heading size="md">{title}</Heading>
       <Spacer />
-      <Text>{data}</Text>
+      {data}
       <Spacer />
       <Button
         variant="solid"

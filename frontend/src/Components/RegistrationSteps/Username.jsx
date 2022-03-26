@@ -2,7 +2,7 @@ import React from "react"
 import LoginCard from "../Shared/LoginCard"
 
 const Username = (props) => {
-  const { setstate } = props
+  const { next } = props
   return (
     <LoginCard
       title="Choose a Username"
@@ -13,7 +13,7 @@ const Username = (props) => {
   Similique?"
       btnText="Next 🡪"
       btnHandler={() => {
-        setstate((prev) => prev + 1)
+        next((prev) => prev + 1)
       }}
     />
   )
