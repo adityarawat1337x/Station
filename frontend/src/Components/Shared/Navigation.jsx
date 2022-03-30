@@ -13,8 +13,10 @@ import {
 import { Icon } from "@chakra-ui/react"
 import styled from "styled-components"
 import { FcMindMap } from "react-icons/fc"
+import { useSelector } from "react-redux"
 
 const Navigation = () => {
+  const { name, avatar } = useSelector((state) => state.activate)
   const { colorMode, toggleColorMode } = useColorMode()
 
   return (
@@ -37,10 +39,10 @@ const Navigation = () => {
       <Sub spacing="3">
         <Spacer />
         <Heading size="md" display={["none", "none", "block"]}>
-          John Doe
+          {name ? name : "Guest"}
         </Heading>
         <Spacer />
-        <Avatar size="sm" />
+        <Avatar src={avatar} size="sm" />
         <Spacer />
         <Switch
           position="absolute"

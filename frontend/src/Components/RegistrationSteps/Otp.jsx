@@ -18,7 +18,7 @@ const Otp = (props) => {
       console.log(res)
       dispatch(setAuth(res.data))
     } catch (err) {
-      alert("Invalid Otp")
+      //alert("Invalid Otp")
     }
   }
 
@@ -30,6 +30,7 @@ const Otp = (props) => {
         <VStack>
           <Spacer />
           <Input
+            autoFocus
             onChange={(e) => {
               setotp(e.target.value)
             }}

@@ -7,7 +7,8 @@ const LoginCard = (props) => {
   const { title, data, btnText, btnHandler } = props
 
   return (
-    <Card rounded="2xl" boxShadow="2xl" w="400px" h="400px">
+    <Card rounded="2xl" boxShadow="2xl" w="400px" h="fit-content">
+      <Spacer />
       <Spacer />
       <Heading size="md">{title}</Heading>
       <Spacer />

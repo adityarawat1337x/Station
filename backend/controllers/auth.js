@@ -14,11 +14,12 @@ class AuthController {
     }
 
     //? Generating OTP and hashing with phone number
-    const otp = await OtpService.generateOtp()
+    //const otp = await OtpService.generateOtp()
+    const otp = 123
     const ttl = 1000 * 60 * 2 // 2 minutes
     const expires = Date.now() + ttl
     const data = `${phone}.${otp}.${expires}`
-    const hash = await OtpService.hashOtp(data)
+    const hash = OtpService.hashOtp(data)
 
     //? Send Otp
     try {
@@ -54,7 +55,7 @@ class AuthController {
       })
     }
 
-    if ((await OtpService.hashOtp(`${phone}.${otp}.${expires}`)) !== otpHash) {
+    if (OtpService.hashOtp(`${phone}.${otp}.${expires}`) !== otpHash) {
       return res.status(400).send({
         message: "Otp is invalid",
       })
@@ -65,11 +66,18 @@ class AuthController {
     try {
       user = await UserService.findUser({ phone })
       if (!user) await UserService.createUser({ phone })
-      //!token
 
+      //!token
       const { accessToken, refreshToken } = tokenService.generateToken({
         id: user._id,
         activated: false,
+      })
+
+      await tokenService.storeRefreshToken(refreshToken, user._id)
+
+      res.cookie("accessToken", accessToken, {
+        maxAge: 1000 * 60 * 60 * 24 * 30,
+        httpOnly: true,
       })
 
       res.cookie("refreshToken", refreshToken, {
@@ -82,10 +90,80 @@ class AuthController {
         user: new UserDtos(user),
       })
     } catch (err) {
+      console.log(err)
       return res.status(500).send({
+        error: err,
         message: "User creation failed",
       })
     }
+  }
+
+  async refresh(req, res) {
+    const { refreshToken: refreshTokenFromCookie } = req.cookies
+    let userData
+
+    //? Check if refresh token is valid
+    try {
+      userData = await tokenService.verifyRefreshToken(refreshTokenFromCookie)
+    } catch (err) {
+      return res.status(401).send({
+        message: "Refresh token is invalid",
+      })
+    }
+
+    //? Check if refresh token is expired
+    try {
+      const token = await tokenService.findRefreshToken(
+        userData._id,
+        refreshTokenFromCookie
+      )
+      if (!token) {
+        return res.status(401).send({
+          message: "Refresh token is invalid",
+        })
+      }
+    } catch (err) {
+      return res.status(500).send({
+        message: "Internal Server Error",
+      })
+    }
+
+    //? Generate new access token
+    const user = await UserService.findUser({ _id: userData._id })
+    if (!user) {
+      return res.status(401).send({
+        message: "No User",
+      })
+    }
+
+    const { refreshToken, accessToken } = await tokenService.generateToken({
+      _id: userData._id,
+    })
+
+    //? Update refresh token
+    try {
+      await tokenService.updateRefreshToken(userData._id, refreshToken)
+    } catch (err) {
+      return res.status(500).send({
+        message: "Internal Server Error",
+      })
+    }
+
+    //? Set cookies
+    res.cookie("accessToken", accessToken, {
+      maxAge: 1000 * 60 * 60 * 24 * 30,
+      httpOnly: true,
+    })
+
+    res.cookie("refreshToken", refreshToken, {
+      maxAge: 1000 * 60 * 60 * 24 * 30,
+      httpOnly: true,
+    })
+
+    res.status(200).json({
+      accessToken,
+      user: new UserDtos(user),
+    })
   }
 }
 

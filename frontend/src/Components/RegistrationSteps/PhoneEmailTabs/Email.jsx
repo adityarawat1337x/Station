@@ -11,15 +11,12 @@ const Email = (props) => {
         <>
           <VStack>
             <Spacer />
-            <Input variant="filled" width="-moz-fit-content" />
+            <Input autoFocus variant="filled" width="-moz-fit-content" />
             <Spacer />
             <Text fontSize="sm" colorScheme="gray">
               We will send you an otp to verify your email.
             </Text>
-            <Text fontSize="sm" colorScheme="gray">
-              By Entering your email, you agree to our Terms of Service and
-              Privacy Policy.
-            </Text>
+
             <Spacer />
           </VStack>
         </>

@@ -25,17 +25,15 @@ const Phone = (props) => {
         <VStack>
           <Spacer />
           <Input
+            autoFocus
             onChange={(e) => setPhone(e.target.value)}
             variant="filled"
             width="-moz-fit-content"
           />
           <Spacer />
+
           <Text fontSize="sm" colorScheme="gray">
             We will send you an otp to verify your phone.
-          </Text>
-          <Text fontSize="sm" colorScheme="gray">
-            By Entering your email, you agree to our Terms of Service and
-            Privacy Policy.
           </Text>
           <Spacer />
         </VStack>
