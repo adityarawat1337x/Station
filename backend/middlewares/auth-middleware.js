@@ -8,15 +8,16 @@ module.exports = async (req, res, next) => {
     }
 
     const userData = TokenService.verifyAccessToken(accessToken)
+
     if (!userData) {
       throw new Error()
     }
     req.user = userData
     next()
-  } catch (err) {
-    return res.status(401).send({
+  } catch (Error) {
+    res.status(401).send({
       message: "Invalid access token",
-      error: err,
+      error: Error,
     })
   }
 }

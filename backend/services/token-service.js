@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken")
 const refreshModel = require("../models/refresh-model")
+
 class TokenService {
   generateToken(payload) {
     let accessToken = jwt.sign(payload, process.env.JWT_SECRET, {
@@ -13,23 +14,23 @@ class TokenService {
 
   async storeRefreshToken(token, userId) {
     try {
-      await Refresh.create({ token, userId })
+      await refreshModel.create({ token, userId })
     } catch (err) {
-      throw err
+      console.log(err.message)
     }
   }
 
-  async verifyAccessToken(token) {
+  verifyAccessToken(token) {
     return jwt.verify(token, process.env.JWT_SECRET)
   }
 
-  async verifyRefreshToken(token) {
+  verifyRefreshToken(token) {
     return jwt.verify(token, process.env.JWT_REFRESH_SECRET)
   }
 
   async findRefreshToken(userId, refreshToken) {
     return await refreshModel.findOne({
-      _id: userId,
+      userId: userId,
       token: refreshToken,
     })
   }

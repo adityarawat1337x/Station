@@ -29,9 +29,9 @@ const Navigation = () => {
             alignItems: "center",
           }}
         >
-          <Icon as={FcMindMap} />{" "}
+          <Icon as={FcMindMap} mr="10px" />
           <Heading display={["none", "none", "block"]} size="lg">
-            {" Codehouse"}
+            {" CodeHouse"}
           </Heading>
         </Link>
       </Main>

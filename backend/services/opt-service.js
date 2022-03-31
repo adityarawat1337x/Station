@@ -8,6 +8,7 @@ const twilio = require("twilio")(sid, token, {
 
 class OtpService {
   async generateOtp() {
+    return 123
     return await crypto.randomInt(1000, 9999)
   }
 

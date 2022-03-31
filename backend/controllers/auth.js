@@ -14,8 +14,8 @@ class AuthController {
     }
 
     //? Generating OTP and hashing with phone number
-    //const otp = await OtpService.generateOtp()
-    const otp = 123
+    const otp = await OtpService.generateOtp()
+    //const otp = 123
     const ttl = 1000 * 60 * 2 // 2 minutes
     const expires = Date.now() + ttl
     const data = `${phone}.${otp}.${expires}`
@@ -69,7 +69,7 @@ class AuthController {
 
       //!token
       const { accessToken, refreshToken } = tokenService.generateToken({
-        id: user._id,
+        _id: user._id,
         activated: false,
       })
 
@@ -99,27 +99,28 @@ class AuthController {
   }
 
   async refresh(req, res) {
-    const { refreshToken: refreshTokenFromCookie } = req.cookies
+    const refreshTokenFromCookie = req.cookies.refreshToken
+    console.log(refreshTokenFromCookie)
     let userData
 
     //? Check if refresh token is valid
     try {
-      userData = await tokenService.verifyRefreshToken(refreshTokenFromCookie)
+      userData = tokenService.verifyRefreshToken(refreshTokenFromCookie)
     } catch (err) {
       return res.status(401).send({
         message: "Refresh token is invalid",
       })
     }
-
     //? Check if refresh token is expired
     try {
       const token = await tokenService.findRefreshToken(
         userData._id,
         refreshTokenFromCookie
       )
+
       if (!token) {
         return res.status(401).send({
-          message: "Refresh token is invalid",
+          message: "Refresh token expired",
         })
       }
     } catch (err) {
@@ -130,6 +131,7 @@ class AuthController {
 
     //? Generate new access token
     const user = await UserService.findUser({ _id: userData._id })
+
     if (!user) {
       return res.status(401).send({
         message: "No User",

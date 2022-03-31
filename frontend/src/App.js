@@ -31,12 +31,6 @@ function App() {
           <ProtectedRoute path="/rooms" exact>
             <Rooms />
           </ProtectedRoute>
-          {/* <Route path="/register" exact>
-            <Register />
-          </Route>
-          <Route path="/login" exact>
-            <Login />
-          </Route> */}
         </Switch>
       </Router>
     </ChakraProvider>
