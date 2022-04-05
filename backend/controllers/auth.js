@@ -167,6 +167,18 @@ class AuthController {
       user: new UserDtos(user),
     })
   }
+
+  async logout(req, res) {
+    //delete refresh token
+    await tokenService.deleteRefreshToken(req.cookies.refreshToken)
+    res.clearCookie("accessToken")
+    res.clearCookie("refreshToken")
+    res.status(200).json({
+      user: null,
+      auth: false,
+      message: "Logged out successfully",
+    })
+  }
 }
 
 module.exports = new AuthController()

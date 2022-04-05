@@ -6,12 +6,13 @@ import styled from "styled-components"
 import { setAvatar } from "../../store/activateSlice"
 import { activate } from "../../http"
 import { setAuth } from "../../store/authSlice"
+import Loader from "../Shared/Loader"
 
 const Avataar = (props) => {
   const { next } = props
 
   const { name, avatar } = useSelector((state) => state.activate)
-
+  const [loading, setLoading] = useState(false)
   const [image, setImage] = useState(require("../../assets/guest.jpeg"))
 
   const dispatch = useDispatch()
@@ -27,6 +28,8 @@ const Avataar = (props) => {
   }
 
   const Submit = async () => {
+    if (!name || !avatar) return
+    setLoading(true)
     try {
       const data = await activate({ name: name, avatar: avatar })
       console.log(data.data)
@@ -36,9 +39,13 @@ const Avataar = (props) => {
       }
     } catch (err) {
       console.log(err)
+    } finally {
+      setLoading(false)
     }
   }
-  return (
+  return loading ? (
+    <Loader message={"Activating User..."} />
+  ) : (
     <LoginCard
       title={`Hello, ${name}!`}
       data={

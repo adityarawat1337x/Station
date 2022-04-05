@@ -4,6 +4,7 @@ import { Input, VStack, Text, Spacer } from "@chakra-ui/react"
 import { useSelector, useDispatch } from "react-redux"
 import { verifyOtp } from "../../http"
 import { setAuth } from "../../store/authSlice"
+import { setAvatar, setName } from "../../store/activateSlice"
 
 const Otp = (props) => {
   const { next } = props
@@ -13,12 +14,15 @@ const Otp = (props) => {
   const dispatch = useDispatch()
 
   const Submit = async () => {
+    if (!otp || !hash || !phone) return
     try {
       const res = await verifyOtp({ otp: otp, hash: hash, phone: phone })
       console.log(res)
       dispatch(setAuth(res.data))
+      dispatch(setName(res.data.user.name))
+      dispatch(setAvatar(res.data.user.avatar))
     } catch (err) {
-      //alert("Invalid Otp")
+      alert("Invalid Otp")
     }
   }
 

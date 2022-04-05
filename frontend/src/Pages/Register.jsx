@@ -5,15 +5,11 @@ import { useHistory } from "react-router-dom"
 import PhoneEmail from "../Components/RegistrationSteps/PhoneEmailTabs/PhoneEmail"
 import Otp from "../Components/RegistrationSteps/Otp"
 import Name from "../Components/RegistrationSteps/Name"
-import Profile from "../Components/RegistrationSteps/Profile"
-import Username from "../Components/RegistrationSteps/Username"
 
 const steps = {
   1: PhoneEmail,
   2: Otp,
   3: Name,
-  4: Profile,
-  5: Username,
 }
 const Register = () => {
   const [state, setstate] = useState(1)

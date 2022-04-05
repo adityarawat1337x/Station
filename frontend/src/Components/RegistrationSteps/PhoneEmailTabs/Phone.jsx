@@ -11,6 +11,7 @@ const Phone = (props) => {
   const dispatch = useDispatch()
 
   async function submit() {
+    if (!phone) return
     const res = await sentOtp({ phone: phone })
     console.log(res)
     dispatch(setOtp(res.data))

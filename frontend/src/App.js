@@ -7,32 +7,40 @@ import {
 import Home from "./Pages/Home"
 import Navigation from "./Components/Shared/Navigation"
 import "./App.css"
-import { ChakraProvider } from "@chakra-ui/react"
+import { Box, ChakraProvider, Spinner } from "@chakra-ui/react"
 import Authenticate from "./Pages/Athenticate"
 import Activate from "./Pages/Activate"
 import Rooms from "./Pages/Rooms"
 import { useSelector } from "react-redux"
+import { useLoadingWithRefresh } from "./hooks/useLoadingWithRefresh"
+import Loader from "./Components/Shared/Loader"
 
 function App() {
+  const loading = useLoadingWithRefresh()
+
   return (
     <ChakraProvider>
-      <Router>
-        <Navigation />
-        <Switch>
-          <GuestRoute path="/" exact>
-            <Home />
-          </GuestRoute>
-          <GuestRoute path="/authenticate" exact>
-            <Authenticate />
-          </GuestRoute>
-          <SemiProtectedRoute path="/activate" exact>
-            <Activate />
-          </SemiProtectedRoute>
-          <ProtectedRoute path="/rooms" exact>
-            <Rooms />
-          </ProtectedRoute>
-        </Switch>
-      </Router>
+      {loading ? (
+        <Loader message={"Refreshing"} />
+      ) : (
+        <Router>
+          <Navigation />
+          <Switch>
+            <GuestRoute path="/" exact>
+              <Home />
+            </GuestRoute>
+            <GuestRoute path="/authenticate" exact>
+              <Authenticate />
+            </GuestRoute>
+            <SemiProtectedRoute path="/activate" exact>
+              <Activate />
+            </SemiProtectedRoute>
+            <ProtectedRoute path="/rooms" exact>
+              <Rooms />
+            </ProtectedRoute>
+          </Switch>
+        </Router>
+      )}
     </ChakraProvider>
   )
 }

@@ -41,6 +41,12 @@ class TokenService {
       { $set: { token: refreshToken } }
     )
   }
+
+  async deleteRefreshToken(refreshToken) {
+    return await refreshModel.deleteOne({
+      token: refreshToken,
+    })
+  }
 }
 
 module.exports = new TokenService()
