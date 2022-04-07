@@ -1,5 +1,5 @@
 import { Avatar, Input } from "@chakra-ui/react"
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import LoginCard from "../Shared/LoginCard"
 import { useDispatch, useSelector } from "react-redux"
 import styled from "styled-components"
@@ -10,7 +10,7 @@ import Loader from "../Shared/Loader"
 
 const Avataar = (props) => {
   const { next } = props
-
+  const [unmounted, setUnMounted] = useState(false)
   const { name, avatar } = useSelector((state) => state.activate)
   const [loading, setLoading] = useState(false)
   const [image, setImage] = useState(require("../../assets/guest.jpeg"))
@@ -34,7 +34,7 @@ const Avataar = (props) => {
       const data = await activate({ name: name, avatar: avatar })
       console.log(data.data)
       if (data.data && data.data.auth) {
-        dispatch(setAuth(data.data))
+        if (!unmounted) dispatch(setAuth(data.data))
         next((prev) => prev + 1)
       }
     } catch (err) {
@@ -43,6 +43,13 @@ const Avataar = (props) => {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    return () => {
+      setUnMounted(true)
+    }
+  }, [])
+
   return loading ? (
     <Loader message={"Activating User..."} />
   ) : (
