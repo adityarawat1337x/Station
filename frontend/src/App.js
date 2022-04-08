@@ -14,6 +14,7 @@ import Rooms from "./Pages/Rooms"
 import { useSelector } from "react-redux"
 import { useLoadingWithRefresh } from "./hooks/useLoadingWithRefresh"
 import Loader from "./Components/Shared/Loader"
+import Room from "./Pages/Room"
 
 function App() {
   const loading = useLoadingWithRefresh()
@@ -37,6 +38,9 @@ function App() {
             </SemiProtectedRoute>
             <ProtectedRoute path="/rooms" exact>
               <Rooms />
+            </ProtectedRoute>
+            <ProtectedRoute path="/room/:id" exact>
+              <Room />
             </ProtectedRoute>
           </Switch>
         </Router>

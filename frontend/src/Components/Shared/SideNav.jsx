@@ -30,8 +30,9 @@ const SideNav = () => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const btnRef = useRef()
   const dispatch = useDispatch()
-  const { name, avatar } = useSelector((state) => state.activate)
-  const { toggleColorMode } = useColorMode()
+  const { user } = useSelector((state) => state.auth)
+  const { colorMode, toggleColorMode } = useColorMode()
+  console.log(colorMode)
   const logOutUser = async () => {
     try {
       const { data } = await logout()
@@ -47,7 +48,7 @@ const SideNav = () => {
   return (
     <>
       <Avatar
-        src={avatar}
+        src={user.avatar}
         size="sm"
         ref={btnRef}
         colorScheme="teal"
@@ -63,29 +64,27 @@ const SideNav = () => {
         <DrawerContent>
           <DrawerCloseButton />
           <DrawerHeader>
-            {name && avatar ? (
+            {user ? (
               <>
                 <Sub spacing="3">
                   <Spacer />
                   <Spacer />
-                  <Avatar src={avatar} size="lg" />
+                  <Avatar src={user.avatar} size="lg" />
                   <Spacer />
-                  <Heading size="md">{name ? name : "Guest"}</Heading>
+                  <Heading size="md">{user.name ? user.name : "Guest"}</Heading>
                   <Spacer />
-                  <HStack>
-                    <Text>Theme</Text>
-                    <Switch onChange={toggleColorMode} />
-                  </HStack>
                 </Sub>
               </>
             ) : (
               <></>
             )}
+            <HStack m="4" justifyContent="center">
+              <Text size="sm">{colorMode === "dark" ? "Dark" : "Light"}</Text>
+              <Switch onChange={toggleColorMode} />
+            </HStack>
           </DrawerHeader>
 
-          <DrawerBody>
-            <Input placeholder="Type here..." />
-          </DrawerBody>
+          <DrawerBody>{/* <Input placeholder="Type here..." /> */}</DrawerBody>
 
           <DrawerFooter justifyContent="center">
             <Button onClick={logOutUser}>Log out</Button>

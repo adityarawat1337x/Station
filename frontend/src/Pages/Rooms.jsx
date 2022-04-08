@@ -1,4 +1,4 @@
-import React from "react"
+import { useState, useEffect } from "react"
 import {
   VStack,
   InputGroup,
@@ -11,47 +11,22 @@ import {
 import { FaSearch } from "react-icons/fa"
 import RoomCard from "../Components/Shared/RoomCard"
 import CreateRoom from "../Components/CreateRoom/CreateRoom"
-
-const RoomsData = [
-  {
-    topic: "dawdawdadw",
-    members: ["dawdada"],
-  },
-  {
-    topic: "dawdawdadw",
-    members: ["dawdada"],
-  },
-  {
-    topic: "dawdawdadw",
-    members: ["dawdada"],
-  },
-  {
-    topic: "dawdawdadw",
-    members: ["dawdada"],
-  },
-  {
-    topic: "dawdawdadw",
-    members: ["dawdada"],
-  },
-  {
-    topic: "dawdawdadw",
-    members: ["dawdada"],
-  },
-  {
-    topic: "dawdawdadw",
-    members: ["dawdada"],
-  },
-  {
-    topic: "dawdawdadw",
-    members: ["dawdada"],
-  },
-  {
-    topic: "dawdawdadw",
-    members: ["dawdada"],
-  },
-]
+import Loader from "../Components/Shared/Loader"
+import { getRooms } from "../http"
 
 const Rooms = () => {
+  const [RoomsData, setRoomsData] = useState([])
+
+  console.log(RoomsData)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await getRooms()
+      setRoomsData(data.data.rooms)
+    }
+    fetchData()
+  }, [])
+
   return (
     <VStack>
       <HStack w={["90%", "70%", "60%"]} justifyContent="center">
@@ -61,17 +36,26 @@ const Rooms = () => {
         </InputGroup>
         <CreateRoom />
       </HStack>
-      <Spacer />
-      <Spacer />
-      <Spacer />
-      <Spacer />
-      <Spacer />
-      <Spacer />
-      <Grid gap="4" templateColumns={["1fr", "repeat(2,1fr)", "repeat(3,1fr)"]}>
-        {RoomsData.map((data, idx) => {
-          return <RoomCard room={data} idx={idx} />
-        })}
-      </Grid>
+      {RoomsData[0] ? (
+        <>
+          <Spacer />
+          <Spacer />
+          <Spacer />
+          <Spacer />
+          <Spacer />
+          <Spacer />
+          <Grid
+            gap="4"
+            templateColumns={["1fr", "repeat(2,1fr)", "repeat(3,1fr)"]}
+          >
+            {RoomsData.map((data, idx) => {
+              return <RoomCard room={data} key={idx} />
+            })}
+          </Grid>
+        </>
+      ) : (
+        <Loader message="Fetching Rooms.." />
+      )}
     </VStack>
   )
 }

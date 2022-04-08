@@ -4,7 +4,7 @@ import styled from "styled-components"
 
 function Loader({ message }) {
   return (
-    <Center w="100vw" h="100vh">
+    <Center w="100%" h="100%">
       <Card rounded="2xl" w="400px" h="200px">
         <Spacer />
         <Spinner />
