@@ -7,7 +7,6 @@ import {
 import Home from "./Pages/Home"
 import Navigation from "./Components/Shared/Navigation"
 import "./App.css"
-import { Box, ChakraProvider, Spinner } from "@chakra-ui/react"
 import Authenticate from "./Pages/Athenticate"
 import Activate from "./Pages/Activate"
 import Rooms from "./Pages/Rooms"
@@ -15,6 +14,7 @@ import { useSelector } from "react-redux"
 import { useLoadingWithRefresh } from "./hooks/useLoadingWithRefresh"
 import Loader from "./Components/Shared/Loader"
 import Room from "./Pages/Room"
+import { ChakraProvider } from "@chakra-ui/react"
 
 function App() {
   const loading = useLoadingWithRefresh()

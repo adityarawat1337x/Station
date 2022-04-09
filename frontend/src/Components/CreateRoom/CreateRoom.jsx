@@ -10,7 +10,6 @@ import {
   ModalCloseButton,
   useDisclosure,
   ModalFooter,
-  Box,
   HStack,
   Input,
   Spacer,

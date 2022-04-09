@@ -21,6 +21,7 @@ const Avataar = (props) => {
     const img = e.target.files[0]
     const reader = new FileReader()
     reader.readAsDataURL(img)
+
     reader.onloadend = (e) => {
       setImage(reader.result)
       dispatch(setAvatar(reader.result))
