@@ -23,7 +23,7 @@ const Activate = () => {
 
 const Frame = styled(Container)`
   width: 100vw;
-  height: 90vh;
+  height: 80vh;
   display: flex;
   justify-content: center;
   align-items: center;

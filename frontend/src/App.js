@@ -50,7 +50,7 @@ function App() {
 }
 
 const GuestRoute = ({ children, ...rest }) => {
-  const { user, isAuth } = useSelector((state) => state.auth)
+  const { isAuth } = useSelector((state) => state.auth)
 
   return (
     <Route

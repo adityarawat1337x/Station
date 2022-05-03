@@ -13,12 +13,16 @@ const Phone = (props) => {
   async function submit() {
     if (!phone) return
     const res = await sentOtp({ phone: phone })
-    console.log(res)
     dispatch(setOtp(res.data))
     next((prev) => prev + 1)
   }
 
-  console.log(phone)
+  const handleKeypress = (e) => {
+    if (e.key === "Enter") {
+      submit()
+    }
+  }
+
   return (
     <LoginCard
       title="📞 Enter Phone"
@@ -30,6 +34,7 @@ const Phone = (props) => {
             onChange={(e) => setPhone(e.target.value)}
             variant="filled"
             width="-moz-fit-content"
+            onKeyPress={handleKeypress}
           />
           <Spacer />
 

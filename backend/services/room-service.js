@@ -20,6 +20,14 @@ class RoomService {
       .exec()
     return rooms
   }
+
+  async getRoom(id) {
+    const room = await RoomModel.findById(id)
+      .populate("speakers")
+      .populate("ownerId")
+      .exec()
+    return room
+  }
 }
 
 module.exports = new RoomService()

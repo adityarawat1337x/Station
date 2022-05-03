@@ -4,8 +4,8 @@ const schema = mongoose.Schema
 
 const refreshSchema = new schema(
   {
-    token: { type: String, required: true, unique: true },
     userId: { type: schema.Types.ObjectId, ref: "User" },
+    token: { type: String, required: true, unique: true },
   },
   {
     timestamps: true,

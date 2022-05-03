@@ -2,7 +2,6 @@ import { useRef } from "react"
 import {
   Drawer,
   DrawerBody,
-  Input,
   DrawerFooter,
   DrawerHeader,
   DrawerOverlay,
@@ -32,7 +31,6 @@ const SideNav = () => {
   const dispatch = useDispatch()
   const { user } = useSelector((state) => state.auth)
   const { colorMode, toggleColorMode } = useColorMode()
-  console.log(colorMode)
   const logOutUser = async () => {
     try {
       const { data } = await logout()
@@ -45,7 +43,7 @@ const SideNav = () => {
     }
   }
 
-  return (
+  return user ? (
     <>
       <Avatar
         src={user.avatar}
@@ -93,6 +91,8 @@ const SideNav = () => {
         <Navigation />
       </Drawer>
     </>
+  ) : (
+    <></>
   )
 }
 

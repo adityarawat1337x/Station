@@ -66,7 +66,6 @@ class AuthController {
     try {
       user = await UserService.findUser({ phone })
       if (!user) await UserService.createUser({ phone })
-
       //!token
       const { accessToken, refreshToken } = tokenService.generateToken({
         _id: user._id,
@@ -100,7 +99,6 @@ class AuthController {
 
   async refresh(req, res) {
     const refreshTokenFromCookie = req.cookies.refreshToken
-    console.log(refreshTokenFromCookie)
     let userData
 
     //? Check if refresh token is valid

@@ -3,8 +3,13 @@ import React from "react"
 import styled from "styled-components"
 import LoginCard from "../Components/Shared/LoginCard"
 import { useHistory } from "react-router-dom"
+import { useSelector } from "react-redux"
+
 const Home = () => {
   const navigate = useHistory()
+  const user = useSelector((state) => state.auth.user)
+  if (user) navigate.push("/rooms")
+
   return (
     <Frame>
       <LoginCard
@@ -27,7 +32,7 @@ const Home = () => {
 
 const Frame = styled(Container)`
   width: 100vw;
-  height: 90vh;
+  height: 80vh;
   display: flex;
   justify-content: center;
   align-items: center;

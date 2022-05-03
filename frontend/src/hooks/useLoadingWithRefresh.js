@@ -9,7 +9,7 @@ export function useLoadingWithRefresh() {
   const dispatch = useDispatch()
 
   useEffect(() => {
-    ;(async () => {
+    const check = async () => {
       try {
         const { data } = await axios.get(
           `${process.env.REACT_APP_API_URL}/api/refresh`,
@@ -25,8 +25,9 @@ export function useLoadingWithRefresh() {
         console.log(err)
         setLoading(false)
       }
-    })()
-  })
+    }
+    check()
+  }, [dispatch])
 
   return loading
 }

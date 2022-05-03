@@ -28,7 +28,7 @@ class ActivateController {
 
     try {
       const userId = req.user._id
-      const user = await UserService.findUser({ id: userId })
+      const user = await UserService.findUser({ _id: userId })
       if (!user)
         return res.status(404).send({ error: err, message: "User not found" })
       user.name = name

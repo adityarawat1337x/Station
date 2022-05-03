@@ -14,18 +14,21 @@ const LoginCard = (props) => {
       <Spacer />
       {data}
       <Spacer />
-      <Button
-        variant="solid"
-        borderLeftRadius="50px"
-        borderRightRadius="50px"
-        colorScheme="messenger"
-        size="sm"
-        onClick={() => {
-          btnHandler()
-        }}
-      >
-        {btnText}
-      </Button>
+      <form action="">
+        <Button
+          type="submit"
+          variant="solid"
+          borderLeftRadius="50px"
+          borderRightRadius="50px"
+          colorScheme="messenger"
+          size="sm"
+          onClick={() => {
+            btnHandler()
+          }}
+        >
+          {btnText}
+        </Button>
+      </form>
       <Spacer />
     </Card>
   )

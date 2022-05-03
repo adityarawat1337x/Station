@@ -33,7 +33,6 @@ const Avataar = (props) => {
     setLoading(true)
     try {
       const data = await activate({ name: name, avatar: avatar })
-      console.log(data.data)
       if (data.data && data.data.auth) {
         if (!unmounted) dispatch(setAuth(data.data))
         next((prev) => prev + 1)

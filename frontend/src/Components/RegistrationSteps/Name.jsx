@@ -8,13 +8,11 @@ const Name = (props) => {
   const { next } = props
 
   const stateName = useSelector((state) => state.activate.name)
-  console.log(stateName)
   const [name, setFullName] = useState(stateName)
   const dispatch = useDispatch()
 
   const submit = () => {
     if (!name) return
-
     dispatch(setName(name))
     next((prev) => prev + 1)
   }

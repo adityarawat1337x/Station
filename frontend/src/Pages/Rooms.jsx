@@ -17,8 +17,6 @@ import { getRooms } from "../http"
 const Rooms = () => {
   const [RoomsData, setRoomsData] = useState([])
 
-  console.log(RoomsData)
-
   useEffect(() => {
     const fetchData = async () => {
       const data = await getRooms()

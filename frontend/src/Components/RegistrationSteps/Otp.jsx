@@ -7,17 +7,15 @@ import { setAuth } from "../../store/authSlice"
 import { setAvatar, setName } from "../../store/activateSlice"
 
 const Otp = (props) => {
-  const { next } = props
   const [otp, setotp] = useState("")
 
   const { hash, phone } = useSelector((state) => state.auth.otp)
   const dispatch = useDispatch()
 
-  const Submit = async () => {
+  const submit = async () => {
     if (!otp || !hash || !phone) return
     try {
       const res = await verifyOtp({ otp: otp, hash: hash, phone: phone })
-      console.log(res)
       dispatch(setAuth(res.data))
       dispatch(setName(res.data.user.name))
       dispatch(setAvatar(res.data.user.avatar))
@@ -25,8 +23,12 @@ const Otp = (props) => {
       alert("Invalid Otp")
     }
   }
+  const handleKeypress = (e) => {
+    if (e.key === "Enter") {
+      submit()
+    }
+  }
 
-  console.log(otp)
   return (
     <LoginCard
       title="Enter OTP"
@@ -38,6 +40,7 @@ const Otp = (props) => {
             onChange={(e) => {
               setotp(e.target.value)
             }}
+            onKeyPress={handleKeypress}
             variant="filled"
             width="-moz-fit-content"
           />
@@ -49,7 +52,7 @@ const Otp = (props) => {
       }
       btnText="Next 🡪"
       btnHandler={() => {
-        Submit()
+        submit()
       }}
     />
   )
