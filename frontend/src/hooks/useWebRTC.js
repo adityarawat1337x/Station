@@ -1,23 +1,20 @@
-import { useRef, useEffect, useCallback } from "react"
-import useStateWithcallback from "./useStateWithcallback"
-import socketInit from "../socket"
+import { useEffect, useRef, useCallback } from "react"
 import { Actions } from "../actions"
+import socketInit from "../socket"
 import freeice from "freeice"
+import useStateWithcallback from "./useStateWithcallback"
 
 export const useWebRTC = (roomId, user) => {
   const [clients, setClients] = useStateWithcallback([])
   const audioElements = useRef({})
   const connections = useRef({})
-  const socketRef = useRef(null)
+  const socket = useRef(null)
   const localMediaStream = useRef(null)
   const clientsRef = useRef(null)
 
   const addNewClient = useCallback(
     (newClient, cb) => {
-      let lookingFor
-      if (clients.length !== 0) {
-        lookingFor = clients.find((client) => client.id === newClient.id)
-      }
+      const lookingFor = clients.find((client) => client._id === newClient._id)
       if (lookingFor === undefined) {
         setClients((existingClients) => [...existingClients, newClient], cb)
       }
@@ -29,98 +26,89 @@ export const useWebRTC = (roomId, user) => {
     clientsRef.current = clients
   }, [clients])
 
-  //Handle new ice candidates
-  async function handleIceCandidate({ peerId, iceCandidate }) {
-    if (iceCandidate) {
-      connections.current[peerId].addIceCandidate(iceCandidate)
-    }
-  }
-
-  //handle new remote sdp
-  const setRemoteMedia = async ({
-    peerId,
-    sessionDescription: remoteSessionDescription,
-  }) => {
-    await connections.current[peerId].setRemoteDescription(
-      new RTCSessionDescription(remoteSessionDescription)
-    )
-
-    //if sdp is offer create answer
-    if (remoteSessionDescription.type === "offer") {
-      const connection = connections.current[peerId]
-
-      const answer = await connection.createAnswer()
-      connection.setLocalDescription(answer)
-
-      socketRef.current.emit(Actions.RELAY_SDP, {
-        peerId,
-        sessionDescription: answer,
-      })
-    }
-  }
-
-  //handle remove peer
-  const handleRemovePeer = async ({ peerId, userId }) => {
-    if (connections.current[peerId]) connections.current[peerId].close()
-    delete connections.current[peerId]
-    delete audioElements.current[peerId]
-    setClients((list) => list.filter((client) => client.id !== userId))
-  }
-
-  //?capture audio
   useEffect(() => {
-    let tmp = connections.current
-    let tmp2 = audioElements.current
+    let conn = connections.current
+    let audi = audioElements.current
 
     const initChat = async () => {
-      //?Socket connection is made to server
-      socketRef.current = socketInit()
+      socket.current = socketInit()
       await captureMedia()
-      addNewClient({ muted: false, ...user }, () => {
-        const localElement = audioElements.current[user.id]
-        // mute your audio for yourself
+
+      addNewClient({ ...user, muted: true }, () => {
+        const localElement = audioElements.current[user._id]
+
         if (localElement) {
           localElement.volume = 0
           localElement.srcObject = localMediaStream.current
         }
-
-        //?socket emit sends your audio to other users
-        socketRef.current.emit(Actions.JOIN, { roomId, user })
       })
-      //?socket listen from server
-      const handleNewPeer = async ({
-        peerId,
-        createOffer,
-        user: remoteUser,
-      }) => {
-        //?if already connected give warning
+
+      socket.current.on(Actions.ADD_PEER, handleNewPeer)
+      socket.current.on(Actions.REMOVE_PEER, handleRemovePeer)
+      socket.current.on(Actions.ICE_CANDIDATE, handleIceCandidate)
+      socket.current.on(Actions.SESSION_DESCRIPTION, setRemoteMedia)
+
+      socket.current.on(Actions.MUTE, ({ peerId, userId }) => {
+        handleSetMute(true, userId)
+      })
+      socket.current.on(Actions.UNMUTE, ({ peerId, userId }) => {
+        handleSetMute(false, userId)
+      })
+
+      socket.current.emit(Actions.JOIN, {
+        roomId,
+        user,
+      })
+
+      async function captureMedia() {
+        // Start capturing local audio stream.
+        localMediaStream.current = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+        })
+      }
+
+      async function handleNewPeer({ peerId, createOffer, user: remoteUser }) {
         if (peerId in connections.current) {
-          return console.warn("peer already exists", user.name)
+          return console.warn(
+            `You are already connected with ${peerId} (${user.name})`
+          )
         }
 
-        //?create peer connection
+        // Store it to connections
         connections.current[peerId] = new RTCPeerConnection({
           iceServers: freeice(),
         })
 
-        //?handle new ice candidates
+        // Handle new ice candidate on this peer connection
         connections.current[peerId].onicecandidate = (event) => {
-          socketRef.current.emit(Actions.RELAY_ICE, {
+          socket.current.emit(Actions.RELAY_ICE, {
             peerId,
-            iceCandidate: event.candidate,
+            icecandidate: event.candidate,
           })
         }
 
         // Handle on track event on this connection
         connections.current[peerId].ontrack = ({ streams: [remoteStream] }) => {
-          addNewClient({ ...remoteUser, muted: false }, () => {
-            if (audioElements.current[remoteUser.id]) {
-              audioElements.current[remoteUser.id].srcObject = remoteStream
+          addNewClient({ ...remoteUser, muted: true }, () => {
+            // get current users mute info
+            const currentUser = clientsRef.current.find(
+              (client) => client._id === user._id
+            )
+            if (currentUser) {
+              socket.current.emit(Actions.MUTE_INFO, {
+                userId: user._id,
+                roomId,
+                isMute: currentUser.muted,
+              })
+            }
+
+            if (audioElements.current[remoteUser._id]) {
+              audioElements.current[remoteUser._id].srcObject = remoteStream
             } else {
               let settled = false
               const interval = setInterval(() => {
-                if (audioElements.current[remoteUser.id]) {
-                  audioElements.current[remoteUser.id].srcObject = remoteStream
+                if (audioElements.current[remoteUser._id]) {
+                  audioElements.current[remoteUser._id].srcObject = remoteStream
                   settled = true
                 }
 
@@ -145,95 +133,108 @@ export const useWebRTC = (roomId, user) => {
           await connections.current[peerId].setLocalDescription(offer)
 
           // send offer to the server
-          socketRef.current.emit(Actions.RELAY_SDP, {
+          socket.current.emit(Actions.RELAY_SDP, {
             peerId,
             sessionDescription: offer,
           })
         }
       }
+      async function handleRemovePeer({ peerId, userId }) {
+        if (connections.current[peerId]) {
+          connections.current[peerId].close()
+        }
 
-      //set mute/unmute
-      const setMute = (mute, userId) => {
-        const clientIdx = clientsRef.current
-          .map((client) => client.id)
-          .indexOf(userId)
-        const connectedClients = JSON.parse(JSON.stringify(clientsRef.current))
-        if (clientIdx > -1) {
-          connectedClients[clientIdx].muted = mute
-          setClients((connectedClients) => connectedClients)
+        delete connections.current[peerId]
+        delete audioElements.current[peerId]
+
+        setClients((list) => list.filter((c) => c._id !== userId))
+      }
+      async function handleIceCandidate({ peerId, icecandidate }) {
+        if (icecandidate) {
+          connections.current[peerId].addIceCandidate(icecandidate)
         }
       }
+      async function setRemoteMedia({
+        peerId,
+        sessionDescription: remoteSessionDescription,
+      }) {
+        connections.current[peerId].setRemoteDescription(
+          new RTCSessionDescription(remoteSessionDescription)
+        )
 
-      socketRef.current.on(Actions.ADD_PEER, handleNewPeer)
-      socketRef.current.on(Actions.REMOVE_PEER, handleRemovePeer)
-      socketRef.current.on(Actions.ICE_CANDIDATE, handleIceCandidate)
-      socketRef.current.on(Actions.SESSION_DESCRIPTION, setRemoteMedia)
-      socketRef.current.on(Actions.MUTE, ({ peerId, userId }) => {
-        console.log("mute responsee")
-        setMute(true, userId)
-      })
+        // If session descrition is offer then create an answer
+        if (remoteSessionDescription.type === "offer") {
+          const connection = connections.current[peerId]
 
-      socketRef.current.on(Actions.UNMUTE, ({ peerId, userId }) => {
-        console.log("unmute responsee")
-        setMute(false, userId)
-      })
+          const answer = await connection.createAnswer()
+          connection.setLocalDescription(answer)
 
-      socketRef.current.emit(Actions.JOIN, { roomId, user })
-      //?Capture audio
-      async function captureMedia() {
-        localMediaStream.current = await navigator.mediaDevices.getUserMedia({
-          audio: true,
-        })
+          socket.current.emit(Actions.RELAY_SDP, {
+            peerId,
+            sessionDescription: answer,
+          })
+        }
+      }
+      async function handleSetMute(mute, userId) {
+        const clientIdx = clientsRef.current
+          .map((client) => client._id)
+          .indexOf(userId)
+        const allConnectedClients = JSON.parse(
+          JSON.stringify(clientsRef.current)
+        )
+        if (clientIdx > -1) {
+          allConnectedClients[clientIdx].muted = mute
+          setClients(allConnectedClients)
+        }
       }
     }
 
     initChat()
+
     return () => {
       localMediaStream.current.getTracks().forEach((track) => track.stop())
-      socketRef.current.emit(Actions.LEAVE)
-      for (let peerId in tmp) {
-        tmp[peerId].close()
-        delete tmp2[peerId]
-        delete tmp[peerId]
+      socket.current.emit(Actions.LEAVE, { roomId })
+      for (let peerId in conn) {
+        conn[peerId].close()
+        delete conn[peerId]
+        delete audi[peerId]
       }
-      socketRef.current.off(Actions.ADD_PEER)
-      socketRef.current.off(Actions.REMOVE_PEER)
-      socketRef.current.off(Actions.ICE_CANDIDATE)
-      socketRef.current.off(Actions.SESSION_DESCRIPTION)
-      socketRef.current.off(Actions.MUTE)
-      socketRef.current.off(Actions.UNMUTE)
+      socket.current.off(Actions.ADD_PEER)
+      socket.current.off(Actions.REMOVE_PEER)
+      socket.current.off(Actions.ICE_CANDIDATE)
+      socket.current.off(Actions.SESSION_DESCRIPTION)
+      socket.current.off(Actions.MUTE)
+      socket.current.off(Actions.UNMUTE)
     }
   }, [])
 
-  //handle Mute
-  const handleMute = (isMute, userId) => {
+  const handleMute = (mute, userId) => {
     let settled = false
     if (userId === user._id) {
-      const interval = setInterval(() => {
+      let interval = setInterval(() => {
         if (localMediaStream.current) {
-          console.log(localMediaStream.current.getTracks())
-          localMediaStream.current.getTracks()[0].enabled = !isMute
-          if (isMute) {
-            socketRef.current.emit(Actions.MUTE, {
-              roomId,
+          //localMediaStream.current.getTracks()[0].enabled = !mute
+          if (mute) {
+            socket.current.emit(Actions.MUTE, {
               userId: user._id,
+              roomId,
             })
           } else {
-            socketRef.current.emit(Actions.UNMUTE, {
-              roomId,
+            socket.current.emit(Actions.UNMUTE, {
               userId: user._id,
+              roomId,
             })
           }
           settled = true
         }
+
         if (settled) {
           clearInterval(interval)
         }
-      }, 300)
+      }, 100)
     }
   }
 
-  //provide ref provides audio element map
   const provideRef = (instance, userId) => {
     audioElements.current[userId] = instance
   }

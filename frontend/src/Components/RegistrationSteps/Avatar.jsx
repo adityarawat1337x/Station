@@ -33,7 +33,7 @@ const Avataar = (props) => {
     setLoading(true)
     try {
       const data = await activate({ name: name, avatar: avatar })
-      if (data.data && data.data.auth) {
+      if (data && data.data && data.data.auth) {
         if (!unmounted) dispatch(setAuth(data.data))
         next((prev) => prev + 1)
       }

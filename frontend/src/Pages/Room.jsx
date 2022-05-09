@@ -17,24 +17,35 @@ import { useEffect, useState } from "react"
 import { getRoom } from "../http"
 
 function Room() {
-  const { id: roomId } = useParams()
   const user = useSelector((state) => state.auth.user)
-  const { clients, provideRef, handleMute } = useWebRTC(roomId, user)
+  const { id: roomId } = useParams()
   const [room, setRoom] = useState(null)
+
+  const { clients, provideRef, handleMute } = useWebRTC(roomId, user)
+
   const history = useHistory()
-  const [isMute, setisMute] = useState(true)
+
+  const [isMuted, setMuted] = useState(true)
 
   useEffect(() => {
-    handleMute(isMute, user._id)
-  }, [isMute])
-
-  useEffect(() => {
-    const getData = async () => {
-      const data = await getRoom(roomId)
-      setRoom(data.data.room)
+    const fetchRoom = async () => {
+      const { data } = await getRoom(roomId)
+      setRoom((prev) => data)
     }
-    getData()
+
+    fetchRoom()
   }, [roomId])
+
+  useEffect(() => {
+    handleMute(isMuted, user._id)
+  }, [isMuted])
+
+  const handleMuteClick = (clientId) => {
+    if (clientId !== user._id) {
+      return
+    }
+    setMuted((prev) => !prev)
+  }
 
   return (
     <Box overflowY="hidden">
@@ -86,10 +97,10 @@ function Room() {
                     border="none"
                     rounded="full"
                     onClick={() => {
-                      if (client._id === user._id) setisMute((prev) => !prev)
+                      handleMuteClick(client._id)
                     }}
                   >
-                    {!isMute ? <BsFillMicMuteFill /> : <BsFillMicFill />}
+                    {client.muted ? <BsFillMicMuteFill /> : <BsFillMicFill />}
                   </Button>
                 </Box>
                 <Spacer />

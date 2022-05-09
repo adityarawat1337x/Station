@@ -10,14 +10,14 @@ const server = require("http").createServer(app)
 
 const io = require("socket.io")(server, {
   cors: {
-    origin: ["http://localhost:3000"],
+    origin: [process.env.CLIENT_URL],
     methods: ["GET", "POST"],
   },
 })
 
 const corsOptions = {
   credentials: true,
-  origin: ["http://localhost:3000"],
+  origin: [process.env.CLIENT_URL],
 }
 
 const port = process.env.PORT || 5000
@@ -31,7 +31,7 @@ app.use(express.json({ limit: "8mb" }))
 app.use(router)
 
 app.get("/", (req, res) => {
-  res.send("hello from server")
+  res.send(process.env.CLIENT_URL + " is sending request")
 })
 
 //?sockets
@@ -45,7 +45,7 @@ io.on("connection", (socket) => {
 
     //?get the room of roomId
     const clients = Array.from(io.sockets.adapter.rooms.get(roomId) || [])
-    console.log(user.name, "joined", roomId)
+    console.log(socket.id, "joined", roomId)
     clients.forEach((clientId) => {
       //?sending connect request to all those clients
       io.to(clientId).emit(Actions.ADD_PEER, {
@@ -63,6 +63,7 @@ io.on("connection", (socket) => {
     })
 
     //?join the room
+    console.log(socket.id, " joined ", roomId)
     socket.join(roomId)
   })
 
@@ -89,27 +90,26 @@ io.on("connection", (socket) => {
 
     clients.forEach((clientId) => {
       io.to(clientId).emit(Actions.MUTE, {
-        userId,
         peerId: socket.id,
+        userId,
       })
     })
   })
 
   socket.on(Actions.UNMUTE, ({ roomId, userId }) => {
-    console.log("unmute", userId)
+    console.log("un-mute", userId, roomId)
     const clients = Array.from(io.sockets.adapter.rooms.get(roomId) || [])
 
     clients.forEach((clientId) => {
       io.to(clientId).emit(Actions.UNMUTE, {
-        userId,
         peerId: socket.id,
+        userId,
       })
     })
   })
 
   //?leaving the room
   const leaveRoom = async () => {
-    console.log("leave event triggered")
     const { rooms } = socket
     if (socketUserMap) {
       Array.from(rooms).forEach((roomId) => {
@@ -125,9 +125,9 @@ io.on("connection", (socket) => {
             userId: socketUserMap[clientId]?._id,
           })
         })
+        console.log(socket.id, " left ", roomId)
         socket.leave(roomId)
       })
-      console.log(socket.id, " left ")
       delete socketUserMap[socket.id]
     }
   }

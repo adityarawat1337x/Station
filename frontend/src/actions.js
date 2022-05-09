@@ -8,5 +8,5 @@ export const Actions = {
   SESSION_DESCRIPTION: "session-description",
   REMOVE_PEER: "remove-peer",
   MUTE: "mute",
-  UNMUTE: "unmute",
+  UNMUTE: "un-mute",
 }
