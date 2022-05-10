@@ -23,7 +23,6 @@ const corsOptions = {
 const port = process.env.PORT || 5000
 
 DBConnect()
-
 app.use(cookieParser())
 app.use(cors(corsOptions))
 app.use("/storage", express.static("storage"))
@@ -46,6 +45,7 @@ io.on("connection", (socket) => {
     //?get the room of roomId
     const clients = Array.from(io.sockets.adapter.rooms.get(roomId) || [])
     console.log(socket.id, "joined", roomId)
+
     clients.forEach((clientId) => {
       //?sending connect request to all those clients
       io.to(clientId).emit(Actions.ADD_PEER, {

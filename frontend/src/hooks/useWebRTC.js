@@ -55,6 +55,7 @@ export const useWebRTC = (roomId, user) => {
         handleSetMute(false, userId)
       })
 
+      //Join the socket room
       socket.current.emit(Actions.JOIN, {
         roomId,
         user,
@@ -83,7 +84,7 @@ export const useWebRTC = (roomId, user) => {
         connections.current[peerId].onicecandidate = (event) => {
           socket.current.emit(Actions.RELAY_ICE, {
             peerId,
-            icecandidate: event.candidate,
+            iceCandidate: event.candidate,
           })
         }
 
@@ -149,9 +150,9 @@ export const useWebRTC = (roomId, user) => {
 
         setClients((list) => list.filter((c) => c._id !== userId))
       }
-      async function handleIceCandidate({ peerId, icecandidate }) {
-        if (icecandidate) {
-          connections.current[peerId].addIceCandidate(icecandidate)
+      async function handleIceCandidate({ peerId, iceCandidate }) {
+        if (iceCandidate) {
+          connections.current[peerId].addIceCandidate(iceCandidate)
         }
       }
       async function setRemoteMedia({
@@ -161,26 +162,24 @@ export const useWebRTC = (roomId, user) => {
         connections.current[peerId].setRemoteDescription(
           new RTCSessionDescription(remoteSessionDescription)
         )
-
         // If session descrition is offer then create an answer
         if (remoteSessionDescription.type === "offer") {
           const connection = connections.current[peerId]
-
           const answer = await connection.createAnswer()
           connection.setLocalDescription(answer)
-
           socket.current.emit(Actions.RELAY_SDP, {
             peerId,
             sessionDescription: answer,
           })
         }
       }
+
       async function handleSetMute(mute, userId) {
         const clientIdx = clientsRef.current
           .map((client) => client._id)
           .indexOf(userId)
         const allConnectedClients = JSON.parse(
-          JSON.stringify(clientsRef.current)
+          JSON.stringify(clientsRef.current) // clone
         )
         if (clientIdx > -1) {
           allConnectedClients[clientIdx].muted = mute
@@ -213,7 +212,7 @@ export const useWebRTC = (roomId, user) => {
     if (userId === user._id) {
       let interval = setInterval(() => {
         if (localMediaStream.current) {
-          //localMediaStream.current.getTracks()[0].enabled = !mute
+          localMediaStream.current.getTracks()[0].enabled = !mute
           if (mute) {
             socket.current.emit(Actions.MUTE, {
               userId: user._id,
@@ -227,7 +226,6 @@ export const useWebRTC = (roomId, user) => {
           }
           settled = true
         }
-
         if (settled) {
           clearInterval(interval)
         }

@@ -15,36 +15,40 @@ import { useLoadingWithRefresh } from "./hooks/useLoadingWithRefresh"
 import Loader from "./Components/Shared/Loader"
 import Room from "./Pages/Room"
 import { ChakraProvider } from "@chakra-ui/react"
+import bg from "./assets/bg.svg"
+import BackGroundProvider from "./Components/BackGroundProvider"
 
 function App() {
   const loading = useLoadingWithRefresh()
 
   return (
     <ChakraProvider>
-      {loading ? (
-        <Loader message={"Refreshing"} />
-      ) : (
-        <Router>
-          <Navigation />
-          <Switch>
-            <GuestRoute path="/" exact>
-              <Home />
-            </GuestRoute>
-            <GuestRoute path="/authenticate" exact>
-              <Authenticate />
-            </GuestRoute>
-            <SemiProtectedRoute path="/activate" exact>
-              <Activate />
-            </SemiProtectedRoute>
-            <ProtectedRoute path="/rooms" exact>
-              <Rooms />
-            </ProtectedRoute>
-            <ProtectedRoute path="/room/:id" exact>
-              <Room />
-            </ProtectedRoute>
-          </Switch>
-        </Router>
-      )}
+      <BackGroundProvider>
+        {loading ? (
+          <Loader message={"Refreshing"} />
+        ) : (
+          <Router>
+            <Navigation />
+            <Switch>
+              <GuestRoute path="/" exact>
+                <Home />
+              </GuestRoute>
+              <GuestRoute path="/authenticate" exact>
+                <Authenticate />
+              </GuestRoute>
+              <SemiProtectedRoute path="/activate" exact>
+                <Activate />
+              </SemiProtectedRoute>
+              <ProtectedRoute path="/rooms" exact>
+                <Rooms />
+              </ProtectedRoute>
+              <ProtectedRoute path="/room/:id" exact>
+                <Room />
+              </ProtectedRoute>
+            </Switch>
+          </Router>
+        )}
+      </BackGroundProvider>
     </ChakraProvider>
   )
 }

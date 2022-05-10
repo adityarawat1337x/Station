@@ -30,7 +30,7 @@ function Room() {
   useEffect(() => {
     const fetchRoom = async () => {
       const { data } = await getRoom(roomId)
-      setRoom((prev) => data)
+      setRoom((prev) => data.room)
     }
 
     fetchRoom()
@@ -58,10 +58,10 @@ function Room() {
         w="100%"
         p={["5", "10", "20"]}
         borderTopRadius="5%"
-        bg="gray.700"
         position="fixed"
-        h={["80vh", "70vh", "50vh"]}
+        h={["60vh", "50vh", "50vh"]}
         bottom="0"
+        background="rgba(175,175,175,0.3)"
       >
         <HStack>
           {room ? (
@@ -88,7 +88,10 @@ function Room() {
               <Box key={idx} m="3">
                 <Spacer />
                 <Box position="relative">
-                  <Avatar border="4px" src={client.avatar}></Avatar>
+                  <Avatar
+                    border="4px solid RGB(64, 202, 91)  "
+                    src={client.avatar}
+                  ></Avatar>
                   <Button
                     position="absolute"
                     left="3"

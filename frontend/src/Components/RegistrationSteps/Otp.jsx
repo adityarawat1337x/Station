@@ -16,6 +16,7 @@ const Otp = (props) => {
     if (!otp || !hash || !phone) return
     try {
       const res = await verifyOtp({ otp: otp, hash: hash, phone: phone })
+      console.log(res)
       dispatch(setAuth(res.data))
       dispatch(setName(res.data.user.name))
       dispatch(setAvatar(res.data.user.avatar))

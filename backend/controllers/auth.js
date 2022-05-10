@@ -77,11 +77,15 @@ class AuthController {
       res.cookie("accessToken", accessToken, {
         maxAge: 1000 * 60 * 60 * 24 * 30,
         httpOnly: true,
+        secure: true,
+        sameSite: "none",
       })
 
       res.cookie("refreshToken", refreshToken, {
         maxAge: 1000 * 60 * 60 * 24 * 30,
         httpOnly: true,
+        sameSite: "none",
+        secure: true,
       })
 
       res.status(200).json({
@@ -118,7 +122,7 @@ class AuthController {
 
       if (!token) {
         return res.status(401).send({
-          message: "Refresh token expired",
+          message: "Refresh token expired or not present",
         })
       }
     } catch (err) {
