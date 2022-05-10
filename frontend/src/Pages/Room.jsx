@@ -2,9 +2,11 @@ import {
   Avatar,
   Box,
   Button,
-  Container,
+  AspectRatio,
   Heading,
   HStack,
+  Grid,
+  GridItem,
   Spacer,
   Text,
 } from "@chakra-ui/react"
@@ -48,24 +50,21 @@ function Room() {
   }
 
   return (
-    <Box overflowY="hidden">
-      <Container display={["none", "none", "block"]} maxW="70%">
-        <FcLeft onClick={() => history.push("/rooms")} />
-        All Rooms
-      </Container>
+    <Box>
       <Box
         mt={["0em", "2em", "6em"]}
         w="100%"
         p={["5", "10", "20"]}
-        borderTopRadius="5%"
+        borderTopRadius="1%"
         position="fixed"
-        h={["60vh", "50vh", "50vh"]}
+        h="90vh"
+        //h={["60vh", "50vh", "50vh"]}
         bottom="0"
         background="rgba(175,175,175,0.3)"
       >
         <HStack>
           {room ? (
-            <Heading fontSize={["md", "lg", "lg"]}>{room.topic}</Heading>
+            <Heading fontSize={["md", "xl", "2xl"]}>{room.topic}</Heading>
           ) : (
             <Heading fontSize={["md", "lg", "lg"]}>Loading...</Heading>
           )}
@@ -82,39 +81,34 @@ function Room() {
           </Button>
         </HStack>
         <Spacer mb="10" />
-        <HStack>
+        <Grid minChildWidth="300px" gap={6}>
           {clients.length &&
             clients.map((client, idx) => (
-              <Box key={idx} m="3">
-                <Spacer />
-                <Box position="relative">
-                  <Avatar
-                    border="4px solid RGB(64, 202, 91)  "
-                    src={client.avatar}
-                  ></Avatar>
-                  <Button
-                    position="absolute"
-                    left="3"
-                    bottom="-2"
-                    variant="ghost"
-                    border="none"
-                    rounded="full"
-                    onClick={() => {
-                      handleMuteClick(client._id)
+              <GridItem maxW="400px" position="relative" key={idx} m="3">
+                <AspectRatio maxW="400px" ratio={1 / 1}>
+                  <video
+                    autoPlay
+                    style={{
+                      transform: "rotateY(180deg)",
+                      borderRadius: "10%",
                     }}
-                  >
-                    {client.muted ? <BsFillMicMuteFill /> : <BsFillMicFill />}
-                  </Button>
-                </Box>
-                <Spacer />
-                <Text fontSize="lg">{client.name}</Text>
-                <audio
-                  autoPlay
-                  ref={(instance) => provideRef(instance, client._id)}
-                ></audio>
-              </Box>
+                    ref={(instance) => provideRef(instance, client._id)}
+                  ></video>
+                </AspectRatio>
+                <Button
+                  position="absolute"
+                  bottom="15px"
+                  left="40%"
+                  rounded="full"
+                  onClick={() => {
+                    handleMuteClick(client._id)
+                  }}
+                >
+                  {client.muted ? <BsFillMicMuteFill /> : <BsFillMicFill />}
+                </Button>
+              </GridItem>
             ))}
-        </HStack>
+        </Grid>
       </Box>
     </Box>
   )
