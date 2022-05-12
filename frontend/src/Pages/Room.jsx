@@ -5,7 +5,7 @@ import {
   AspectRatio,
   Heading,
   HStack,
-  Grid,
+  SimpleGrid,
   GridItem,
   Spacer,
   Text,
@@ -69,6 +69,7 @@ function Room() {
             <Heading fontSize={["md", "lg", "lg"]}>Loading...</Heading>
           )}
           <Spacer />
+          <Spacer />
           <Button
             onClick={() => {
               history.push("/rooms")
@@ -80,12 +81,12 @@ function Room() {
             🖖 Leave quietly
           </Button>
         </HStack>
-        <Spacer mb="10" />
-        <Grid minChildWidth="300px" gap={6}>
+        <Spacer mb="5" />
+        <SimpleGrid minChildWidth="200px" column={3} gap={4}>
           {clients.length &&
             clients.map((client, idx) => (
-              <GridItem maxW="400px" position="relative" key={idx} m="3">
-                <AspectRatio maxW="400px" ratio={1 / 1}>
+              <GridItem maxW="50vh" position="relative" key={idx} m="3">
+                <AspectRatio maxW="50vh" ratio={1 / 1}>
                   <video
                     autoPlay
                     style={{
@@ -100,15 +101,16 @@ function Room() {
                   bottom="15px"
                   left="40%"
                   rounded="full"
+                  colorScheme={client.muted ? "red" : "green"}
                   onClick={() => {
                     handleMuteClick(client._id)
                   }}
                 >
                   {client.muted ? <BsFillMicMuteFill /> : <BsFillMicFill />}
                 </Button>
-              </GridItem>
+              </GridItem>+
             ))}
-        </Grid>
+        </SimpleGrid>
       </Box>
     </Box>
   )

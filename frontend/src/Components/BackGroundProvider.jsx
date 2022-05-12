@@ -11,10 +11,11 @@ const BackGroundProvider = (props) => {
       <Image
         src={bgI}
         w="100%"
+        scale={["3", "2", "1"]}
         zIndex="-1"
         position="fixed"
         bottom="0"
-        filter={colorMode === "dark" ? "hueRotate(20deg)" : "hueRotate(0deg)"}
+        filter={colorMode === "dark" ? "hueRotate(50deg)" : "hueRotate(0deg)"}
       />
       {props.children}
     </Box>
