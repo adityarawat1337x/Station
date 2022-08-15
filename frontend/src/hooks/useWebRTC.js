@@ -65,7 +65,7 @@ export const useWebRTC = (roomId, user) => {
         // Start capturing local audio stream.
         localMediaStream.current = await navigator.mediaDevices.getUserMedia({
           audio: true,
-          video: true,
+          // video: true,
         })
       }
 
