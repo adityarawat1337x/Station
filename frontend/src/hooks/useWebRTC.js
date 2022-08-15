@@ -78,7 +78,27 @@ export const useWebRTC = (roomId, user) => {
 
         // Store it to connections
         connections.current[peerId] = new RTCPeerConnection({
-          iceServers: freeice(),
+          // iceServers: freeice(),
+          iceServers: [
+            {
+              urls: "stun:openrelay.metered.ca:80",
+            },
+            {
+              urls: "turn:openrelay.metered.ca:80",
+              username: "openrelayproject",
+              credential: "openrelayproject",
+            },
+            {
+              urls: "turn:openrelay.metered.ca:443",
+              username: "openrelayproject",
+              credential: "openrelayproject",
+            },
+            {
+              urls: "turn:openrelay.metered.ca:443?transport=tcp",
+              username: "openrelayproject",
+              credential: "openrelayproject",
+            },
+          ],
         })
 
         // Handle new ice candidate on this peer connection
