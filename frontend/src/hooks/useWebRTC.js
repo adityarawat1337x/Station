@@ -65,7 +65,7 @@ export const useWebRTC = (roomId, user) => {
         // Start capturing local audio stream.
         localMediaStream.current = await navigator.mediaDevices.getUserMedia({
           audio: true,
-          // video: true,
+          video: true,
         })
       }
 
@@ -80,14 +80,11 @@ export const useWebRTC = (roomId, user) => {
         connections.current[peerId] = new RTCPeerConnection({
           // iceServers: freeice(),
           iceServers: [
-            ...freeice(),
             {
-              urls: "turn:openrelay.metered.ca:80",
-              username: "openrelayproject",
-              credential: "openrelayproject",
+              urls: "stun:openrelay.metered.ca:80",
             },
             {
-              urls: "turn:openrelay.metered.ca:443",
+              urls: "turn:openrelay.metered.ca:443?transport=tcp",
               username: "openrelayproject",
               credential: "openrelayproject",
             },
