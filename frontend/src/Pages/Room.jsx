@@ -108,7 +108,7 @@ function Room() {
                 >
                   {client.muted ? <BsFillMicMuteFill /> : <BsFillMicFill />}
                 </Button>
-              </GridItem>+
+              </GridItem>
             ))}
         </SimpleGrid>
       </Box>
