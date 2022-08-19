@@ -36,7 +36,7 @@ export const useWebRTC = (roomId, user) => {
 
       addNewClient({ ...user, muted: true }, () => {
         const localElement = audioElements.current[user._id]
-
+        //https://www.mumble2.dev/
         if (localElement) {
           localElement.volume = 0
           localElement.srcObject = localMediaStream.current
@@ -65,7 +65,7 @@ export const useWebRTC = (roomId, user) => {
         // Start capturing local audio stream.
         localMediaStream.current = await navigator.mediaDevices.getUserMedia({
           audio: true,
-          // video: true,
+          video: true,
         })
       }
 
